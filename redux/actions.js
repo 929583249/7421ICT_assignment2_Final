@@ -1,22 +1,36 @@
-// redux/actions.js
-import { ADD_TO_CART, REMOVE_FROM_CART, INCREASE_QUANTITY, DECREASE_QUANTITY } from './actionTypes';
+// actions.js
+export const ADD_TO_CART = 'ADD_TO_CART';
+export const REMOVE_FROM_CART = 'REMOVE_FROM_CART';
+export const INCREASE_QUANTITY = 'INCREASE_QUANTITY';
+export const DECREASE_QUANTITY = 'DECREASE_QUANTITY';
+export const CLEAR_CART = 'CLEAR_CART';
+export const ADD_NEW_ORDER = 'ADD_NEW_ORDER';
 
-export const addToCart = (product) => ({
+export const addNewOrder = (orderDetails) => ({
+  type: ADD_NEW_ORDER,
+  payload: orderDetails,
+});
+
+export const addToCart = (item) => ({
   type: ADD_TO_CART,
-  payload: product
+  payload: item,
 });
 
-export const removeFromCart = (productId) => ({
+export const removeFromCart = (itemId) => ({
   type: REMOVE_FROM_CART,
-  payload: productId
+  payload: itemId,
 });
 
-export const increaseQuantity = (productId) => ({
+export const increaseQuantity = (itemId) => ({
   type: INCREASE_QUANTITY,
-  payload: productId
+  payload: itemId,
 });
 
-export const decreaseQuantity = (productId) => ({
+export const decreaseQuantity = (itemId) => ({
   type: DECREASE_QUANTITY,
-  payload: productId
+  payload: itemId,
+});
+
+export const clearCart = () => ({
+  type: CLEAR_CART,
 });

@@ -1,18 +1,16 @@
 import React from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
 
 const MyOrder = () => {
-  // 订单状态数据
-  const orders = [
-    { id: '1', title: 'New Order' },
-    { id: '2', title: 'Paid Order' },
-    { id: '3', title: 'Delivered Order' }
-  ];
+  // 更新这里的路径
+  const orders = useSelector(state => state.order.orders);
 
-  // 渲染每个订单状态的函数
   const renderItem = ({ item }) => (
     <View style={styles.item}>
-      <Text style={styles.title}>{item.title}</Text>
+      <Text style={styles.title}>Order ID: {item.id}</Text>
+      <Text style={styles.title}>Order Tta: ${item.total}</Text>
+      {/* 展示更多订单细节如果需要 */}
     </View>
   );
 
@@ -21,13 +19,12 @@ const MyOrder = () => {
       <FlatList
         data={orders}
         renderItem={renderItem}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id.toString()}
       />
     </View>
   );
 };
 
-// 添加一些样式
 const styles = StyleSheet.create({
   container: {
     flex: 1,

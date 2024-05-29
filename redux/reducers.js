@@ -1,10 +1,10 @@
 // redux/reducers.js
-import { ADD_TO_CART, REMOVE_FROM_CART, INCREASE_QUANTITY, DECREASE_QUANTITY } from './actionTypes';
+import { ADD_TO_CART, REMOVE_FROM_CART, INCREASE_QUANTITY, DECREASE_QUANTITY, CLEAR_CART } from './actionTypes';
 
 const initialState = {
   items: [],
   totalQuantity: 0,
-  totalPrice: 0
+  totalPrice: 0,
 };
 
 const cartReducer = (state = initialState, action) => {
@@ -24,11 +24,12 @@ const cartReducer = (state = initialState, action) => {
         totalPrice: state.totalPrice + newItem.price
       };
     case REMOVE_FROM_CART:
+      const itemToRemove = state.items.find(item => item.id === action.payload);
       return {
         ...state,
         items: state.items.filter(item => item.id !== action.payload),
-        totalQuantity: state.totalQuantity - 1,
-        totalPrice: state.totalPrice - state.items.find(item => item.id === action.payload).price
+        totalQuantity: state.totalQuantity - itemToRemove.quantity,
+        totalPrice: state.totalPrice - (itemToRemove.price * itemToRemove.quantity)
       };
     case INCREASE_QUANTITY:
       const itemToIncrease = state.items.find(item => item.id === action.payload);
@@ -60,6 +61,13 @@ const cartReducer = (state = initialState, action) => {
         };
       }
       break;
+    case CLEAR_CART:
+      return {
+        ...state,
+        items: [],
+        totalQuantity: 0,
+        totalPrice: 0
+      };
     default:
       return state;
   }

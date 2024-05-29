@@ -1,14 +1,46 @@
-// components/ShoppingCart.js
 import React from 'react';
+import { View, Button, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { increaseQuantity, decreaseQuantity, removeFromCart } from '../redux/actions';
+import { increaseQuantity, decreaseQuantity, removeFromCart, clearCart, addNewOrder } from '../redux/actions'; // 确保正确导入 addNewOrder
 
-const ShoppingCart = () => {
-  const cartItems = useSelector(state => state.items);
-  const totalPrice = useSelector(state => state.totalPrice);
-  const totalQuantity = useSelector(state => state.totalQuantity);
+const ShoppingCart = ({ setView }) => {
+  const cartItems = useSelector(state => state.cart.items); 
+  const totalPrice = useSelector(state => state.cart.totalPrice);
+  const totalQuantity = useSelector(state => state.cart.totalQuantity);
+  const token = useSelector(state => state.user.token);
   const dispatch = useDispatch();
+
+  const handleCheckout = async () => {
+    if (!token) {
+      Alert.alert('You must be logged in to checkout');
+      return;
+    }
+
+    console.log("Sending checkout request with items:", cartItems);
+    console.log("Using authorization token:", token);
+    try {
+      const response = await fetch('http://10.0.2.2:3000/orders/neworder', {
+        method: 'POST',
+        mode: "cors",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ items: cartItems })
+      });
+      const result = await response.json();
+      if (result.status === 'OK') {
+        dispatch(addNewOrder(result.orderDetails)); // 分发 addNewOrder 动作
+        dispatch(clearCart()); // 清空购物车
+        Alert.alert('Checkout successful!');
+      } else {
+        Alert.alert(`Checkout failed: ${result.message}`);
+      }
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      Alert.alert('Checkout error: Please try again.');
+    }
+  };
 
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
@@ -44,6 +76,7 @@ const ShoppingCart = () => {
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
       />
+      <Button onPress={handleCheckout} title="Checkout" />
     </View>
   );
 };
@@ -63,25 +96,25 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 16,
-    flex: 1, // Ensure text does not overflow
+    flex: 1,
   },
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 10, // Add space between text and buttons
+    marginLeft: 10,
   },
   button: {
-    padding: 10, // Increase padding for easier tapping
-    marginHorizontal: 5, // Add space between buttons
-    backgroundColor: '#ddd', // Background color to make button more visible
-    borderRadius: 5, // Rounded corners
+    padding: 10,
+    marginHorizontal: 5,
+    backgroundColor: '#ddd',
+    borderRadius: 5,
   },
   buttonText: {
-    fontSize: 18, // Larger font size for easier reading
+    fontSize: 18,
   },
   quantityText: {
     fontSize: 16,
-    marginHorizontal: 10, // Space around quantity text
+    marginHorizontal: 10,
   },
   header: {
     fontSize: 18,
@@ -93,9 +126,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 18,
+    emptyText: {
+      fontSize: 18,
+    }
   }
 });
 
